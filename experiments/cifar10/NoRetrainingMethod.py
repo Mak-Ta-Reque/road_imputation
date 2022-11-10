@@ -43,6 +43,7 @@ if __name__ == '__main__':
     print("Types:", params["modifiers"])
     print("Imputation: ", params["imputation"])
     print("MoRF-order", bool(params["morf"]))
+    print("Ranking: ", params["ranking"])
     print("Resultsfile",  params["datafile"])
     print("Percentages", params["percentages"])
     print("Timeout", int(params["timeoutdays"]))
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     storage_file = params["datafile"]
     modifiers = params["modifiers"]
     ps = params["percentages"]
+    ranking = params["ranking"]
 
 
     num_of_classes = 10 
@@ -96,7 +98,7 @@ if __name__ == '__main__':
         #_, explanation_train, _, prediction_train = load_expl(None, expl_train)
         _, expl_test, _, pred_test = load_expl(None, expl_test)
 
-        res_acc, prob_acc = run_road(model, dataset_test, expl_test, normalize_transform, [perc_value], morf=morf, batch_size=32, imputation = imputer)
+        res_acc, prob_acc = run_road(model, dataset_test, expl_test, normalize_transform, [perc_value], morf=morf, batch_size=32, imputation = imputer, ranking=ranking)
         # res_acc, prob_acc = run_road(model, dataset_test, expl_test, normalize_transform, [perc_value], morf=morf, batch_size=32, imputation = imputer)
         print('finished job with params', run_params, " Drawing new params.")
         print('--' * 50)

@@ -11,17 +11,17 @@ import sys
 
 from road import run_road, use_device
 from road.retraining import retraining
-from road.imputations import NoisyLinearImputer, ChannelMeanImputer, ZeroImputer, GAINImputer
+from road.imputations import NoisyLinearImputer, ChannelMeanImputer, ZeroImputer, GAINImputer, ImpaintingImputation, ImpaintingImputationNS
 from road.utils import load_expl
 
 # Config
-use_device_gain = "cuda:0"
+use_device_gain = "cpu"
 
-expl_path_test = "./data/ig/base_test.pkl"
-expl_path_train = "./data/ig/base_train.pkl"
+expl_path_test = "/workspaces/data/cifar10/explanation/ig/base_test.pkl"
+expl_path_train = "/workspaces/data/cifar10/explanation/ig/base_train.pkl"
 
 percentages = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9]
-
+ranking = "threshold"
 
 def get_imputer(imputation, retrain):
     """ Return the imputer object. """
@@ -29,6 +29,10 @@ def get_imputer(imputation, retrain):
         imputer = NoisyLinearImputer(noise=0.01)
     elif imputation == "fixed":
         imputer = ChannelMeanImputer()
+    elif imputation == "telea":
+        imputer = ImpaintingImputation()
+    elif imputation == "ns":
+        imputer = ImpaintingImputationNS()
     elif imputation == "gan":
         imputer = GAINImputer("../../road/gisp/models/cifar_10_best.pt", use_device=(use_device_gain))
     else:
@@ -49,16 +53,16 @@ def run_no_retrain(imputation):
     transform_test = transforms.Compose([transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     transform_tensor = torchvision.transforms.Compose([transforms.ToTensor()])
-    cifar_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_tensor)
-    cifar_test= torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_tensor)
+    cifar_train = torchvision.datasets.CIFAR10(root='/workspaces/data/cifar10/', train=True, download=True, transform=transform_tensor)
+    cifar_test= torchvision.datasets.CIFAR10(root='/workspaces/data/cifar10/', train=False, download=True, transform=transform_tensor)
     imputation_obj = get_imputer(imputation, False)
-    accuracies, probs = run_road(model, cifar_test, explanation_test, transform_test, percentages, morf=True, batch_size = 32, imputation=imputation_obj)
+    accuracies, probs = run_road(model, cifar_test, explanation_test, transform_test, percentages, morf=True, batch_size = 32, imputation=imputation_obj, ranking=ranking)
 
 def run_retrain(imputation):
     model = models.resnet18
     transform_tensor = transforms.Compose([transforms.ToTensor()])
-    cifar_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_tensor)
-    cifar_test = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_tensor)
+    cifar_train = torchvision.datasets.CIFAR10(root='/workspaces/data/cifar10/', train=True, download=True, transform=transform_tensor)
+    cifar_test = torchvision.datasets.CIFAR10(root='/workspaces/data/cifar10/', train=False, download=True, transform=transform_tensor)
     ## set transforms
     transform_train = transforms.Compose([transforms.RandomHorizontalFlip(),
                                             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -69,7 +73,7 @@ def run_retrain(imputation):
     ## start retraining
     for percentage in percentages:
         res_acc, prob_acc = retraining(cifar_train, cifar_test, explanation_train, explanation_test, prediction_train, prediction_test, \
-            [percentage], 10, model, transform_train=transform_train, transform_test=transform_test, epoch=40, morf=True, batch_size=64, imputation=imputation_obj)
+            [percentage], 10, model, transform_train=transform_train, transform_test=transform_test, epoch=40, morf=True, batch_size=64, imputation=imputation_obj, ranking=ranking)
     print("Result:", res_acc)
 
 print(sys.argv)

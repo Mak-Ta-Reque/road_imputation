@@ -1,0 +1,45 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+
+       
+        {
+            "name": "ROAD No Retain",
+            "type": "python",
+            "request": "launch",
+            "program": "experiments/cifar10/NoRetrainingMethod.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [
+                "--data_path=/workspaces/data/cifar10/explanation",
+                "--expl_path=/workspaces/data/cifar10/explanation",
+                "--params_file=experiments/cifar10/noretrain_params.json",
+                "--model_path=data/cifar_8014.pth"
+            ]
+        },
+
+        {
+            "name": "ROAD Retain",
+            "type": "python",
+            "request": "launch",
+            "program": "experiments/cifar10/RetrainingMethod.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [
+                "--data_path=/workspaces/data/cifar10/retrain",
+                "--expl_path=/workspaces/data/cifar10/retrain",
+                "--params_file=experiments/cifar10/retrain_params.json",
+            ]
+        },
+    ]
+}

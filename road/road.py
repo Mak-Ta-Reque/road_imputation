@@ -19,7 +19,7 @@ from .retraining import road_eval
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-def run_road(model, dataset_test, explanations_test, transform_test, percentages, morf=True, batch_size=64, imputation = NoisyLinearImputer(noise=0.01), threshold = False):
+def run_road(model, dataset_test, explanations_test, transform_test, percentages, morf=True, batch_size=64, imputation = NoisyLinearImputer(noise=0.01), ranking = "sort"):
     """ Run the ROAD benchmark. 
         model: Pretrained model on data set.
         dataset_test: The test set to run the benchmark on. Should deterministically return a (tensor, tensor)-tuple for each index.
@@ -49,16 +49,18 @@ def run_road(model, dataset_test, explanations_test, transform_test, percentages
             base_testloader = torch.utils.data.DataLoader(ds_test_imputed_lin, batch_size=batch_size, shuffle=False,
                                                     num_workers=4)
             testloader =  ImputingDataLoaderWrapper(base_testloader, imputation, image_transform=transform_test)           
-        elif threshold:
+        elif ranking == "threshold":
             ds_test_imputed_lin = ThresholdDataset(dataset_test, mask=explanations_test, th_p=p, remove=morf, imputation = imputation, 
                     transform = transform_test, target_transform = None, prediction = None, use_cache=False)
 
             testloader = torch.utils.data.DataLoader(ds_test_imputed_lin, batch_size=batch_size, shuffle=False, num_workers=8)
-        else :
+        elif ranking == "sort" :
             ds_test_imputed_lin = ImputedDataset(dataset_test, mask=explanations_test, th_p=p, remove=morf, imputation = imputation, 
                     transform = transform_test, target_transform = None, prediction = None, use_cache=False)
 
             testloader = torch.utils.data.DataLoader(ds_test_imputed_lin, batch_size=batch_size, shuffle=False, num_workers=8)
+        else:
+            raise Exception("The ranking type for saliency masking is not given. Plese specify it in configuation json file ")
         acc_avg, prob_avg = road_eval(model, testloader)
         res_acc[i] = acc_avg
         prob_acc[i] = prob_avg

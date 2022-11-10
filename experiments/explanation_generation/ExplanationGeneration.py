@@ -26,6 +26,7 @@ def main():
 	np.random.seed(args.seed)
 	input_path = args.input_path
 	save_path = args.save_path
+	print(args.gpu)
 	device = torch.device("cuda:0") if args.gpu else torch.device("cpu")
 	batch_size = args.batch_size
 	model_path = args.model_path
@@ -55,7 +56,7 @@ def main():
 	num_ftrs = model.fc.in_features
 	model.fc = nn.Linear(num_ftrs, 10)
 	model = model.to(device)
-	model.load_state_dict(torch.load(model_path))
+	model.load_state_dict(torch.load(model_path, map_location=device))
 	criterion = nn.CrossEntropyLoss().to(device)
 	optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 	scheduler = MultiStepLR(optimizer, milestones=[10,20,30], gamma=0.1)

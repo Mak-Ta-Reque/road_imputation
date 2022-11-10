@@ -21,7 +21,7 @@ def arg_parse():
 
 
     parser.set_defaults(batch_size=32,
-                        gpu=True,
+                        gpu=False,
                         expl_method='ig',
                         input_path='./data',
                         save_path='./data',

@@ -1,8 +1,9 @@
 {"basemethod": "ig",
  "modifiers": ["base", "sg", "sq", "var"],
- "imputation": "telea",
+ "imputation": "linear",
+ "ranking": "sort",
  "morf": true,
- "datafile": "result/noretrain.json",
- "percentages": [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9],
+ "datafile": "/workspaces/outputs/road/sota/results/noretrain.json",
+ "percentages": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
  "timeoutdays": 0
 }
