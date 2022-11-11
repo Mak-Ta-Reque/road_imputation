@@ -149,7 +149,7 @@ def update_eval_result(value: float, filepath: str, imputation: str, base_method
     mylist[run_id] = value
     json.dump(res_dict, open(filepath, "w"))
 
-def get_missing_run_parameters(filepath, imputation, order: bool, base_method, modifiers, percentages, target_num_runs=5, timeout=3):
+def get_missing_run_parameters(filepath, imputation, order: bool, base_method, modifiers, percentages, target_num_runs=1, timeout=3):
     """ Return a tuple of percentage value, runID, that still needs to be computed. """
     for mod in modifiers:
         for p in percentages:
