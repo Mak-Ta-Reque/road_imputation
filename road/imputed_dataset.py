@@ -286,13 +286,13 @@ class ThresholdDataset(torch.utils.data.Dataset):
             
             if self.remove:
                 # mask (white) with important region
-                coords = mask_copy > self.th_p
+                coords = mask_copy > (1 - self.th_p)
 
             else:
                 # mask (white) less important region
                 coords = (1 - mask_copy) > (1-self.th_p)
                 #print(len(coords))
-            coords = torch.squeeze(coords,dim=1)
+            coords = torch.squeeze(~coords,dim=1)
             bitmask = bitmask * coords
             bitmask = bitmask.reshape(width, height)
     
