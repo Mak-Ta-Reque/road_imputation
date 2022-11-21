@@ -283,16 +283,14 @@ class ThresholdDataset(torch.utils.data.Dataset):
             min_heatmap_val = torch.min(mask_copy)
     
             mask_copy =  (mask_copy - min_heatmap_val)/(max_heatmap_val - min_heatmap_val)
-            
+            mask_copy = torch.squeeze(mask_copy,dim=1)
             if self.remove:
                 # mask (white) with important region
-                coords = mask_copy > (1 - self.th_p)
+                coords = mask_copy.le(1.0 - self.th_p)
 
             else:
                 # mask (white) less important region
-                coords = (1 - mask_copy) > (1-self.th_p)
-                #print(len(coords))
-            coords = torch.squeeze(~coords,dim=1)
+                coords = mask_copy.ge(self.th_p)
             bitmask = bitmask * coords
             bitmask = bitmask.reshape(width, height)
     

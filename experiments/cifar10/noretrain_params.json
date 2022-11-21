@@ -1,9 +1,9 @@
 {"basemethod": "ig",
  "modifiers": ["base", "sg", "sq", "var"],
- "imputation": "fixed",
- "ranking": "sort",
+ "imputation": "linear",
+ "ranking": "threshold",
  "morf": false,
- "datafile": "/workspaces/outputs/road/sort_fixed/results/noretrain.json",
- "percentages": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+ "datafile": "/workspaces/outputs/road_exp_3/threshold_linear/results/noretrain.json",
+ "percentages": [0.0, 0.001, 0.005, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99],
  "timeoutdays": 0
 }
