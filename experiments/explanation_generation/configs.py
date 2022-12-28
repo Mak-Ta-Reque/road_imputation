@@ -6,6 +6,8 @@ def arg_parse():
     # Explanations params
     parser.add_argument("--gpu", type=bool,
                         help="use cuda")
+    parser.add_argument("--test", type=bool,
+                        help="Test data true")
     parser.add_argument("--batch_size", type=int,
                         help="batch size")
     parser.add_argument("--expl_method", type=str, 
@@ -20,8 +22,9 @@ def arg_parse():
                         help="set random seed")
 
 
-    parser.set_defaults(batch_size=32,
+    parser.set_defaults(batch_size=10,
                         gpu=False,
+                        test=False,
                         expl_method='ig',
                         input_path='./data',
                         save_path='./data',

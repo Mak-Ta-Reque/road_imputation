@@ -83,7 +83,7 @@ class ImputedDataset(torch.utils.data.Dataset):
             if self.remove:
                 coords = salient_order[:int(width*height*self.th_p)]
             else:
-                coords = salient_order[int(width*height*(self.th_p)):]
+                coords = salient_order[width*height - int(width*height*(self.th_p)):]
                 #print(len(coords))
             bitmask[coords] = 0
             bitmask = bitmask.reshape(width, height)
@@ -247,7 +247,7 @@ class ThresholdDataset(torch.utils.data.Dataset):
         self.remove = remove
         self.prediction = prediction
         # a constant small perturbation for attribution map with many equal values.
-        self.random_v = 1e-4*(np.random.randn(*self.img_mask[0].shape[:2]))
+        #self.random_v = 1e-4*(np.random.randn(*self.img_mask[0].shape[:2]))
         self.imputation = imputation # Either 'fixed' or 'linear'
         self.use_cache = use_cache
         self.cached_img = {}
@@ -268,15 +268,13 @@ class ThresholdDataset(torch.utils.data.Dataset):
             pred = self.prediction[index] if self.prediction else 0
             explanation = self.img_mask[index]
             mask_copy = rescale_channel(explanation)
-            mask_copy += self.random_v
+            #mask_copy += self.random_v
             mask_copy = mask_copy.reshape(-1,1)
             mask_copy = torch.tensor(mask_copy)
             # doing this so that it is consistent with all other datasets
             # to return a PIL Image
             # img = Image.fromarray(img)
             width, height = img.size(-2), img.size(-1)
-
-            salient_order = torch.argsort(mask_copy, axis=0, descending=True) # highest values first.
             bitmask = torch.ones(width*height, dtype=torch.uint8) # Set to zero if pixel is removed.
 
             max_heatmap_val = torch.max(mask_copy)
@@ -284,6 +282,8 @@ class ThresholdDataset(torch.utils.data.Dataset):
     
             mask_copy =  (mask_copy - min_heatmap_val)/(max_heatmap_val - min_heatmap_val)
             mask_copy = torch.squeeze(mask_copy,dim=1)
+            max_heatmap_val = torch.max(mask_copy)
+            min_heatmap_val = torch.min(mask_copy)
             if self.remove:
                 # mask (white) with important region
                 coords = mask_copy.le(1.0 - self.th_p)

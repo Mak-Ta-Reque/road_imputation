@@ -68,10 +68,10 @@ def main():
 	download=True, transform=transform_test)
 
 	trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-	  shuffle=True, num_workers=2)
+	  shuffle=True, num_workers=8)
 
 	testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-	 shuffle=False, num_workers=2)
+	 shuffle=False, num_workers=8)
 
 	## get the acc of this model
 	model.eval()
@@ -88,47 +88,64 @@ def main():
 		print('Accuracy of the network on test images: %.4f %%' % (
 		 			100 * correct / len(testloader.dataset)))
 
-	cifar_train_expl = {}
+	
 
 	## get explanation function
 	get_expl = explanation_method(expl_str)
-	for i_num in tqdm(range(len(trainset)), position=0, leave=True):
-		expl_dict = {}
-		sample, clss = trainset[i_num]
-		outputs = model(sample.unsqueeze(0).to(device))
-		_, predicted = torch.max(outputs.data, 1)
-		expl = get_expl(model, sample.unsqueeze(0).to(device), clss)
-		# print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
-		expl_dict['expl'] = expl
-		expl_dict['prediction'] = predicted.data[0].cpu().numpy()
-		expl_dict['label'] = clss
-		expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
-		cifar_train_expl[i_num] = expl_dict
-		# imshow_expl(expl)
-		# _ = viz.visualize_image_attr(expl, sample, method="blended_heat_map",sign="all",
-		# 								show_colorbar=True, title="Overlayed Integrated Gradients")
+	if args.test:
+		cifar_test_expl = {}
+		for i_num in tqdm(range(len(testset)), position=0, leave=True):
+			expl_dict = {}
+			sample, clss = testset[i_num]
+			outputs = model(sample.unsqueeze(0).to(device))
+			_, predicted = torch.max(outputs.data, 1)
+			expl = get_expl(model, sample.unsqueeze(0).to(device), clss)
+			# print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
+			expl_dict['expl'] = expl
+			expl_dict['prediction'] = predicted.data[0].cpu().numpy()
+			expl_dict['label'] = clss
+			expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
+			cifar_test_expl[i_num] = expl_dict
+		save_dict(cifar_test_expl, save_test_path, save_test_file)
+	else:
+		cifar_train_expl = {}
+		for i_num in tqdm(range(len(trainset)), position=0, leave=True):
+			expl_dict = {}
+			sample, clss = trainset[i_num]
+			outputs = model(sample.unsqueeze(0).to(device))
+			_, predicted = torch.max(outputs.data, 1)
+			expl = get_expl(model, sample.unsqueeze(0).to(device), clss)
+			# print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
+			expl_dict['expl'] = expl
+			expl_dict['prediction'] = predicted.data[0].cpu().numpy()
+			expl_dict['label'] = clss
+			expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
+			cifar_train_expl[i_num] = expl_dict
+			# imshow_expl(expl)
+			# _ = viz.visualize_image_attr(expl, sample, method="blended_heat_map",sign="all",
+			# 								show_colorbar=True, title="Overlayed Integrated Gradients")
 
-		# imshow(sample)
-		# exit()
-	save_dict(cifar_train_expl, save_train_path, save_train_file)
-	# # show images
-	# images = cifar_train_expl[0]
-	# imshow(torch.from_numpy(images))
+			# imshow(sample)
+			# exit()
+		save_dict(cifar_train_expl, save_train_path, save_train_file)
+		# # show images
+		# images = cifar_train_expl[0]
+		# imshow(torch.from_numpy(images))
 
-	cifar_test_expl = {}
-	for i_num in tqdm(range(len(testset)), position=0, leave=True):
-		expl_dict = {}
-		sample, clss = testset[i_num]
-		outputs = model(sample.unsqueeze(0).to(device))
-		_, predicted = torch.max(outputs.data, 1)
-		expl = IG_SG(model, sample.unsqueeze(0).to(device), clss)
-		# print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
-		expl_dict['expl'] = expl
-		expl_dict['prediction'] = predicted.data[0].cpu().numpy()
-		expl_dict['label'] = clss
-		expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
-		cifar_test_expl[i_num] = expl_dict
-	save_dict(cifar_test_expl, save_test_path, save_test_file)
+		cifar_test_expl = {}
+		for i_num in tqdm(range(len(testset)), position=0, leave=True):
+			expl_dict = {}
+			sample, clss = testset[i_num]
+			outputs = model(sample.unsqueeze(0).to(device))
+			_, predicted = torch.max(outputs.data, 1)
+			expl = IG_SG(model, sample.unsqueeze(0).to(device), clss)
+			# print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
+			expl_dict['expl'] = expl
+			expl_dict['prediction'] = predicted.data[0].cpu().numpy()
+			expl_dict['label'] = clss
+			expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
+			cifar_test_expl[i_num] = expl_dict
+		save_dict(cifar_test_expl, save_test_path, save_test_file)
 
 if __name__ == '__main__':
 	main()
