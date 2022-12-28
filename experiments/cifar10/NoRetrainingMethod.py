@@ -67,7 +67,8 @@ if __name__ == '__main__':
         imputer = ChannelMeanImputer()
     elif imputation == "gain":
         imputer = GAINImputer("../../road/gisp/models/cifar_10_best.pt", use_device)
-
+    elif imputation == "zero":
+        imputer = ZeroImputer()
 
     # Load trained model
     model = models.resnet18()

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Call this script from the experiments/cifar10 folder as cwd.
 retrain=noretrain # noretrain
-for impu in gan fixed linear telea ns 
+for impu in fixed linear telea ns 
 do
 for run in 0 1 2 3 4
 do
