@@ -75,22 +75,22 @@ def main():
     ## get the acc of this model
     # model.half()
     model.eval()
-    # correct = 0
-    # with torch.no_grad():
-    # 	for data in testloader:
-    # 		inputs, labels, _ = data
-    # 		inputs = inputs.to(device) #.to(device)
-    # 		labels = labels.to(device) #.to(device)
-    # 		outputs = model(inputs)
-    # 		_, predicted = torch.max(outputs.data, 1)
-    # 		correct += (predicted == labels).sum().item()
-    #
-    # 	print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
+    correct = 0
+    with torch.no_grad():
+        for data in testloader:
+            inputs, labels, _ = data
+            inputs = inputs.to(device) #.to(device)
+            labels = labels.to(device) #.to(device)
+            outputs = model(inputs)
+            _, predicted = torch.max(outputs.data, 1)
+            correct += (predicted == labels).sum().item()
+        print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
 
 
 
     ## get explanation function
     get_expl = explanation_method(expl_str)
+
     if not args.test:
         start = time.time()
         for i_num in tqdm(range(len(trainset))):
