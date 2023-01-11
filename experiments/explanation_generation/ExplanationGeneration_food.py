@@ -68,8 +68,8 @@ def main():
 
     trainset = Data_Loader(root=input_path, train=True, dataset='Food-101', transform=transform_train)
     testset = Data_Loader(root=input_path, train=False, dataset='Food-101', transform=transform_test)
-    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=8)
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=16)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=16)
     print('Trainset: {}'.format(len(trainloader.dataset)))
     print('Testset: {}'.format(len(testloader.dataset)))
 
