@@ -78,6 +78,7 @@ def main():
     model.eval()
     
     correct = 0
+    """
     with torch.no_grad():
         for data in testloader:
             inputs, labels = data
@@ -88,7 +89,7 @@ def main():
             correct += (predicted == labels).sum().item()
 
         print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
-
+    """
     
 
     ## get explanation function
