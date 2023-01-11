@@ -2,6 +2,125 @@ import pickle
 import json
 from datetime import datetime
 import argparse
+import os
+import glob
+from torch.utils.data import Dataset
+import numpy as np
+# Copied from explantion generator
+class Data_Loader(Dataset):
+	"""
+	Dataset for reading Food-101 or other datasets.
+	Parameters:
+		root: root path where the explanations stored
+		dataset: the name of dataset. Currently, we support Food-101 and Birdsap
+		train: set to True if is training set, otherwise, test set
+		transforms: transform functions
+	"""
+	def __init__(
+			self,
+			root,
+			dataset,
+			train=True,
+			transform=None,
+	) -> None:
+
+		super().__init__()
+
+		self.root = root # "../dataset/food-101/" or "../dataset/birdsnap/"
+		self.train = train # train or test
+		self.transform = transform
+		self.dataset = dataset
+
+		self.class_dict = label2idx(self.root, self.dataset)
+		if self.dataset == 'Food-101':
+			self.dataset_path = os.path.join(self.root, 'images')
+			self.img_path_list = get_img_path(self.root, self.dataset, self.train)
+		elif self.dataset == 'Birdsnap':
+			self.dataset_path = os.path.join(self.root, 'download', 'images_low')
+			self.img_path_list = get_img_path(self.root, self.dataset, self.train)
+		else:
+			raise ValueError("Unknown dataset.")
+
+	def __len__(self):
+		return len(self.img_path_list)
+
+	def __getitem__(self, index):
+		label, img_path = self.img_path_list[index]
+		target = self.class_dict[label]
+		img = loader(os.path.join(self.dataset_path, '%s.jpg' % (img_path,)), self.transform)
+
+		target = target - 1 if self.dataset == 'Birdsnap' else target
+
+		return img, target
+
+
+class Explantionset(Dataset):
+    """
+    Explanation set for reading Food-101 or other datasets.
+    Parameters:
+        root: root path where the explanations stored
+        dataset: the name of dataset. Currently, we support Food-101 and Birdsap
+        train: set to True if is training set, otherwise, test set
+        transforms: transform functions
+    """
+    def __init__(
+            self,
+            path,
+            train=False,
+            transform=None,
+    ) -> None:
+
+        super().__init__()
+        if train:
+            data_type = 'train'
+        else:
+            data_type =  'test'
+        self.exp_root = os.path.join(path,"explanation", data_type)
+        self.pred_root = os.path.join(path,"prediction", data_type)
+        self.transform = transform
+
+    def __len__(self):
+        return len(list_exp = glob.glob(f'{self.exp_root}/*.npy'))
+
+    def __getitem__(self, index):
+        exp_path = os.path.join(self.exp_root, f"{str(index)}.npy")
+        exp = np.load(exp_path)    
+        return exp
+class Predictionset(Dataset):
+    """
+    Explanation set for reading Food-101 or other datasets.
+    Parameters:
+        root: root path where the explanations stored
+        dataset: the name of dataset. Currently, we support Food-101 and Birdsap
+        train: set to True if is training set, otherwise, test set
+        transforms: transform functions
+    """
+    def __init__(
+            self,
+            path,
+            train=False,
+            transform=None,
+    ) -> None:
+
+        super().__init__()
+        if train:
+            data_type = 'train'
+        else:
+            data_type =  'test'
+        self.exp_root = os.path.join(path,"explanation", data_type)
+        self.pred_root = os.path.join(path,"prediction", data_type)
+        self.transform = transform
+
+    def __len__(self):
+        return len(list_exp = glob.glob(f'{self.pred_root}/*.npy'))
+
+    def __getitem__(self, index):
+        pred_path = os.path.join(self.pred_root, f"{str(index)}.npy")
+        pred = np.load(pred_path)
+    
+        return pred
+
+
 
 def load_dict(filename):
     with open(filename, 'rb') as f:
@@ -25,6 +144,10 @@ def load_expl(train_file, test_file):
             expl_test.append(test_dict[i]['expl'])
             prediction_test.append(test_dict[i]['prediction'])
     return expl_train, expl_test, prediction_train, prediction_test
+
+
+def load_expl_dir_form(exp_pred_path, train = False):
+    return Explantionset(exp_pred_path, train=train), Predictionset(exp_pred_path, train=train)
 
 def create_empty_evaluation_file(filepath, dataset):
     """ Create an empty JSON evaluation file where evaluation results can be stored in. """

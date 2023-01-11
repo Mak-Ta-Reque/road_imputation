@@ -1,7 +1,7 @@
 from datetime import datetime
 import os, sys
 import torchvision
-from utils import  Data_Loader, append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
+from utils import Data_Loader,load_expl_dir_form, append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
 import json
 import time
 from torchvision import models
@@ -10,7 +10,6 @@ import road
 from road import run_road
 from road.imputations import *
 from road.retraining import *
-
 # different seeds
 seeds = [2005, 42, 1515, 3333, 420]
 
@@ -75,6 +74,14 @@ if __name__ == '__main__':
 
     # Load trained model
     
+    run_params = get_missing_run_parameters(storage_file, imputation, morf, group, modifiers, ps, timeout=int(params["timeoutdays"]))
+    print("Got Run Parameters (mod, perc, run_id): ", run_params)
+    while run_params is not None:
+        modifier = run_params[0]
+        perc_value = run_params[1]
+        run_id = run_params[2]
+        torch.manual_seed(seeds[run_id]) # set appropriate seed 
+
 
     if dataset=="cifer10":
         num_of_classes = 10
@@ -85,6 +92,10 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
         dataset_test= torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform_tensor)
         # to do enble cifer 10
+        expl_train = f"{expl_path}/{group}/{modifier}_train.pkl"
+        expl_test = f"{expl_path}/{group}/{modifier}_test.pkl"
+        _, expl_test, _, pred_test = load_expl(None, expl_test)
+
        
     elif dataset == "food101":
         num_of_classes = 101
@@ -92,20 +103,19 @@ if __name__ == '__main__':
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_of_classes)
         model.load_state_dict(torch.load(model_path, map_location=torch.device(use_device))["model_state"])
-        ataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_test)
+        dataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_test)
+        # list all the files from input dir
+        
+        # to do enble cifer 10
+        expl_train = f"{expl_path}/{group}_{modifier}"
+        expl_test = f"{expl_path}/{group}_{modifier}"
+        expl_test, pred_test = load_expl_dir_form(expl_test, train=False) # return a indexing object like list
 
     # load trained classifier
     
-    run_params = get_missing_run_parameters(storage_file, imputation, morf, group, modifiers, ps, timeout=int(params["timeoutdays"]))
-    print("Got Run Parameters (mod, perc, run_id): ", run_params)
-    while run_params is not None:
-        modifier = run_params[0]
-        perc_value = run_params[1]
-        run_id = run_params[2]
-        torch.manual_seed(seeds[run_id]) # set appropriate seed 
 
-        expl_train = f"{expl_path}/{group}/{modifier}_train.pkl"
-        expl_test = f"{expl_path}/{group}/{modifier}_test.pkl"
+
+        
 
         start_time = time.time()
         ## load cifar 10 dataset in tensors
@@ -115,7 +125,6 @@ if __name__ == '__main__':
 
         ## load explanation
         #_, explanation_train, _, prediction_train = load_expl(None, expl_train)
-        _, expl_test, _, pred_test = load_expl(None, expl_test)
 
         res_acc, prob_acc = run_road(model, dataset_test, expl_test, normalize_transform, [perc_value], morf=morf, batch_size=32, imputation = imputer, ranking=ranking)
         # res_acc, prob_acc = run_road(model, dataset_test, expl_test, normalize_transform, [perc_value], morf=morf, batch_size=32, imputation = imputer)

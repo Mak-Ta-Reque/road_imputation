@@ -27,7 +27,8 @@ def main():
     np.random.seed(args.seed)
     input_path = args.input_path
     save_path = args.save_path
-    device = torch.device("cuda:0") if args.gpu else torch.device("cpu")
+    device = torch.device("cuda:0") if args.gpu else torch.device('cpu')
+    print(args.gpu)
     batch_size = args.batch_size
     model_path = args.model_path
     image_size = (224, 224)
@@ -50,13 +51,12 @@ def main():
 
     # Food101
     model = models.resnet50(pretrained=True)
-    print(model)
     num_of_classes = 101
 
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_of_classes)
     model = model.to(device)
-    model.load_state_dict(torch.load(model_path)["model_state"])
+    model.load_state_dict(torch.load(model_path, map_location=device )["model_state"])
 
     transform_train = transforms.Compose([transforms.Resize(image_size), # transforms.RandomHorizontalFlip(),
                                     transforms.ToTensor(),
@@ -76,6 +76,7 @@ def main():
     ## get the acc of this model
     # model.half()
     model.eval()
+    """
     correct = 0
     with torch.no_grad():
         for data in testloader:
@@ -88,7 +89,7 @@ def main():
 
         print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
 
-
+    """
 
     ## get explanation function
     get_expl = explanation_method(expl_str)

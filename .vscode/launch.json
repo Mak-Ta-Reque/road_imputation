@@ -4,10 +4,50 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+
+    
     
         
 
+        {
+            "name": "Generate Explantion food",
+            "type": "python",
+            "request": "launch",
+            "program": "/workspaces/road_impainting/experiments/explanation_generation/ExplanationGeneration_food.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "/workspaces/road_impainting/experiments/explanation_generation/"
+            },
+            "args": [
+                "--test=True",
+		        "--gpu=",
+		        "--input_path=/workspaces/data/food101/image/food-101",
+		        "--save_path=/workspaces/data/food101/image/food-101/expl/",
+		        "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
+		        "--batch_size=2",
+		        "--expl_method=ig"
+            ] 
+        },
 
+        {
+            "name": "ROAD No Retain (food)",
+            "type": "python",
+            "request": "launch",
+            "program": "experiments/food101/NoRetrainingMethod.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [
+                "--data_path=/workspaces/data/food101/image/food-101",
+                "--expl_path=/workspaces/data/food101/image/food-101/expl",
+                "--params_file=experiments/food101/noretrain_params.json",
+                "--model_path=/workspaces/data/food101/weight/resnet50model.pth"
+            ]
+        },
        
         {
             "name": "ROAD No Retain",

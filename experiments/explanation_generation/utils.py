@@ -67,7 +67,7 @@ def imshow_expl(img):
 	# if len(img.shape)>2:
 	# 	plt.imshow(np.transpose(img, (1, 2, 0)))
 	# else:
-	plt.imshow(img)
+	plt.imshow(img)  
 	plt.show()
 
 
