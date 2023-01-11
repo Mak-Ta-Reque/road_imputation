@@ -91,34 +91,35 @@ def main():
 
     ## get explanation function
     get_expl = explanation_method(expl_str)
-    start = time.time()
-    for i_num in tqdm(range(len(trainset))):
-        sample, clss = trainset[i_num]
-        sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
-        outputs = model(sample)
-        _, predicted = torch.max(outputs.data, 1)
-        expl = get_expl(model, sample, clss)
+    if not args.test:
+        start = time.time()
+        for i_num in tqdm(range(len(trainset))):
+            sample, clss = trainset[i_num]
+            sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
+            outputs = model(sample)
+            _, predicted = torch.max(outputs.data, 1)
+            expl = get_expl(model, sample, clss)
 
-        ### save expl and predictions
-        np.save(os.path.join(save_expl_path, 'explanation', 'train', '%s.npy' % str(i_num)), expl)
-        np.save(os.path.join(save_expl_path, 'prediction', 'train', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
-    end = time.time() - start
-    print('Explanation for Trainset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
+            ### save expl and predictions
+            np.save(os.path.join(save_expl_path, 'explanation', 'train', '%s.npy' % str(i_num)), expl)
+            np.save(os.path.join(save_expl_path, 'prediction', 'train', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
+        end = time.time() - start
+        print('Explanation for Trainset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
+    else:
+        start = time.time()
+        for i_num in tqdm(range(len(testset))):
+            sample, clss = testset[i_num]
+            sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
+            outputs = model(sample)
+            _, predicted = torch.max(outputs.data, 1)
+            expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)
 
-    start = time.time()
-    for i_num in tqdm(range(len(testset))):
-        sample, clss = testset[i_num]
-        sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
-        outputs = model(sample)
-        _, predicted = torch.max(outputs.data, 1)
-        expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)
+            ### save expl and predictions
+            np.save(os.path.join(save_expl_path, 'explanation', 'test', '%s.npy' % str(i_num)), expl)
+            np.save(os.path.join(save_expl_path, 'prediction', 'test', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
 
-        ### save expl and predictions
-        np.save(os.path.join(save_expl_path, 'explanation', 'test', '%s.npy' % str(i_num)), expl)
-        np.save(os.path.join(save_expl_path, 'prediction', 'test', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
-
-    end = time.time() - start
-    print('Explanation for Testset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
+        end = time.time() - start
+        print('Explanation for Testset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
 
 if __name__ == '__main__':
 
