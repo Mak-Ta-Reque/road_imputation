@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         
 
         {
@@ -23,8 +24,8 @@
 		        "--input_path=/workspaces/data/food101/image/food-101",
 		        "--save_path=/workspaces/data/food101/image/food-101/expl/",
 		        "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
-		        "--batch_size=3",
-		        "--expl_method=ig"
+		        "--batch_size=1",
+		        "--expl_method=ig_sg"
             ] 
         },
 

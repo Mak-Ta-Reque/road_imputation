@@ -76,7 +76,7 @@ def main():
     ## get the acc of this model
     # model.half()
     model.eval()
-    """
+    
     correct = 0
     with torch.no_grad():
         for data in testloader:
@@ -89,7 +89,7 @@ def main():
 
         print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
 
-    """
+    
 
     ## get explanation function
     get_expl = explanation_method(expl_str)
