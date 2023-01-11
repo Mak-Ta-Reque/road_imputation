@@ -80,7 +80,8 @@ def main():
     correct = 0
     with torch.no_grad():
         for data in testloader:
-            inputs, labels, _ = data
+            print(data)
+            inputs, labels = data
             inputs = inputs.to(device) #.to(device)
             labels = labels.to(device) #.to(device)
             outputs = model(inputs)
