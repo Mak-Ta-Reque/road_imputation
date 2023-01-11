@@ -1,7 +1,7 @@
 from datetime import datetime
 import os, sys
 import torchvision
-from utils import append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
+from utils import  Data_Loader, append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
 import json
 import time
 from torchvision import models
@@ -10,7 +10,6 @@ import road
 from road import run_road
 from road.imputations import *
 from road.retraining import *
-
 
 # different seeds
 seeds = [2005, 42, 1515, 3333, 420]
@@ -27,18 +26,19 @@ if __name__ == '__main__':
     params_file = args.params_file
     dataset = args.dataset
     model_path = args.model_path
+    image_size = (224, 224)
 
    
 
 
     ## set transforms
-    transform_train = transforms.Compose([transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]) #transforms.RandomHorizontalFlip(),
-    transform_test = transforms.Compose([transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    transform_train = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]) #transforms.RandomHorizontalFlip(),
+    transform_test = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 
     # Apply this transformation after imputation.
     normalize_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    
+    transform_tensor = transforms.Compose([transforms.ToTensor()])
     
     params = json.load(open(params_file))
     print("Device: ", use_device)
@@ -77,14 +77,23 @@ if __name__ == '__main__':
     
 
     if dataset=="cifer10":
+        num_of_classes = 10
+        model = models.resnet18()
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, num_of_classes)
+        # load trained classifier
+        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        dataset_test= torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform_tensor)
         # to do enble cifer 10
-        raise ReferenceError("This file is not cifer10. Use the script for cifer 10")
+       
     elif dataset == "food101":
         num_of_classes = 101
         model = models.resnet50()
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_of_classes)
         model.load_state_dict(torch.load(model_path, map_location=torch.device(use_device))["model_state"])
+        ataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_test)
+
     # load trained classifier
     
     run_params = get_missing_run_parameters(storage_file, imputation, morf, group, modifiers, ps, timeout=int(params["timeoutdays"]))
@@ -100,9 +109,9 @@ if __name__ == '__main__':
 
         start_time = time.time()
         ## load cifar 10 dataset in tensors
-        transform_tensor = transforms.Compose([transforms.ToTensor()])
+        #transform_tensor = transforms.Compose([transforms.ToTensor()])
         #cifar_train = torchvision.datasets.CIFAR10(root=data_local, train=True, download=True, transform=transform_tensor)
-        dataset_test= torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform_tensor)
+        #dataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_test)
 
         ## load explanation
         #_, explanation_train, _, prediction_train = load_expl(None, expl_train)

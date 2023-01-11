@@ -2,7 +2,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 from torchvision import datasets, models
-#from resnet import resnet50
+from resnet import resnet50
 import matplotlib
 from torch.utils.data import DataLoader
 import time
@@ -32,22 +32,13 @@ def main():
     model_path = args.model_path
     image_size = (224, 224)
 
-
     # Directory to save the explanations
     if not os.path.isdir(save_path):
         os.makedirs(save_path)
 
     expl_str = args.expl_method
-    save_train_path = os.path.join(save_path, expl_str.split('_')[0])
-    save_test_path = os.path.join(save_path, expl_str.split('_')[0])
-    if not os.path.isdir(save_train_path):
-        os.makedirs(save_train_path)
-    if not os.path.isdir(save_test_path):
-        os.makedirs(save_test_path)
-    save_train_file = '%s_train.pkl'%(expl_str.split('_')[1] if '_' in expl_str else 'base')
-    save_test_file = '%s_test.pkl'%(expl_str.split('_')[1] if '_' in expl_str else 'base')
+    save_expl_path = os.path.join(save_path, expl_str) if '_' in expl_str else os.path.join(save_path, '%s_base'%expl_str)
 
-    """
     if not os.path.isdir(os.path.join(save_expl_path, 'explanation', 'train')):
         os.makedirs(os.path.join(save_expl_path, 'explanation', 'train'))
     if not os.path.isdir(os.path.join(save_expl_path, 'prediction', 'train')):
@@ -56,12 +47,8 @@ def main():
         os.makedirs(os.path.join(save_expl_path, 'explanation', 'test'))
     if not os.path.isdir(os.path.join(save_expl_path, 'prediction', 'test')):
         os.makedirs(os.path.join(save_expl_path, 'prediction', 'test'))
-    """
-
-    
 
     # Food101
-    #model = resnet50()
     model = models.resnet50(pretrained=True)
     print(model)
     num_of_classes = 101
@@ -81,8 +68,8 @@ def main():
 
     trainset = Data_Loader(root=input_path, train=True, dataset='Food-101', transform=transform_train)
     testset = Data_Loader(root=input_path, train=False, dataset='Food-101', transform=transform_test)
-    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=8)
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=16)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=16)
     print('Trainset: {}'.format(len(trainloader.dataset)))
     print('Testset: {}'.format(len(testloader.dataset)))
 
@@ -92,59 +79,49 @@ def main():
     correct = 0
     with torch.no_grad():
         for data in testloader:
-            #print(data)
-            inputs, labels = data
+            inputs, labels, _ = data
             inputs = inputs.to(device) #.to(device)
             labels = labels.to(device) #.to(device)
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1)
             correct += (predicted == labels).sum().item()
+
         print('Accuracy of the network on test images: %.4f %%' % (100 * correct / len(testloader.dataset)))
 
 
 
     ## get explanation function
     get_expl = explanation_method(expl_str)
-
-    if args.test:
+    if not args.test:
         start = time.time()
-        food_test_expl = {}
-        for i_num in tqdm(range(len(testset)), position=0, leave=True):
-            expl_dict = {}
-            sample, clss = testset[i_num]
-            outputs = model(sample.unsqueeze(0).to(device))
+        for i_num in tqdm(range(len(trainset))):
+            sample, clss = trainset[i_num]
+            sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
+            outputs = model(sample)
             _, predicted = torch.max(outputs.data, 1)
-            expl = get_expl(model, sample.unsqueeze(0).to(device), clss)
-            # print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
-            expl_dict['expl'] = expl
-            expl_dict['prediction'] = predicted.data[0].cpu().numpy()
-            expl_dict['label'] = clss
-            expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
-            food_test_expl[i_num] = expl_dict
-        save_dict(food_test_expl, save_test_path, save_test_file)
+            expl = get_expl(model, sample, clss)
+
+            ### save expl and predictions
+            np.save(os.path.join(save_expl_path, 'explanation', 'train', '%s.npy' % str(i_num)), expl)
+            np.save(os.path.join(save_expl_path, 'prediction', 'train', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
+        end = time.time() - start
+        print('Explanation for Trainset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
+    else:
+        start = time.time()
+        for i_num in tqdm(range(len(testset))):
+            sample, clss = testset[i_num]
+            sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
+            outputs = model(sample)
+            _, predicted = torch.max(outputs.data, 1)
+            expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)
+
+            ### save expl and predictions
+            np.save(os.path.join(save_expl_path, 'explanation', 'test', '%s.npy' % str(i_num)), expl)
+            np.save(os.path.join(save_expl_path, 'prediction', 'test', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
+
         end = time.time() - start
         print('Explanation for Testset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
-
-    else:
-        food_train_expl = {}
-        for i_num in tqdm(range(len(trainset)), position=0, leave=True):
-            expl_dict = {}
-            sample, clss = trainset[i_num]
-            outputs = model(sample.unsqueeze(0).to(device))
-            _, predicted = torch.max(outputs.data, 1)
-            expl = get_expl(model, sample.unsqueeze(0).to(device), clss)
-            # print(predicted.data[0].cpu().numpy(), outputs.data[0].cpu().numpy(), clss)
-            expl_dict['expl'] = expl
-            expl_dict['prediction'] = predicted.data[0].cpu().numpy()
-            expl_dict['label'] = clss
-            expl_dict['predict_p'] = outputs.data[0].cpu().numpy()
-            food_train_expl[i_num] = expl_dict
-        end = time.time() - start
-        save_dict(food_train_expl, save_train_path, save_train_file)
-        print('Explanation for Trainset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
-       
 
 if __name__ == '__main__':
 
     main()
-
