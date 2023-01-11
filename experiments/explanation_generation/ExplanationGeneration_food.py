@@ -2,7 +2,8 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 from torchvision import datasets, models
-from resnet import resnet50
+#from resnet import resnet50
+from torchvision import models
 import matplotlib
 from torch.utils.data import DataLoader
 import time
@@ -49,7 +50,8 @@ def main():
         os.makedirs(os.path.join(save_expl_path, 'prediction', 'test'))
 
     # Food101
-    model = resnet50()
+    #model = resnet50()
+    model = models.resnet50(pretrained=True)
     num_of_classes = 101
 
     num_ftrs = model.fc.in_features
