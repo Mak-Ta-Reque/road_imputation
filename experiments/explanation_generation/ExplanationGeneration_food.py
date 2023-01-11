@@ -1,4 +1,5 @@
 import torch
+torch.cuda.empty_cache()
 import torchvision
 import torchvision.transforms as transforms
 from torchvision import datasets, models
