@@ -27,8 +27,7 @@ def main():
     np.random.seed(args.seed)
     input_path = args.input_path
     save_path = args.save_path
-    device = torch.device("cuda:0") if args.gpu else torch.device('cpu')
-    print(args.gpu)
+    device = torch.device("cuda:1") if args.gpu else torch.device('cpu')
     batch_size = args.batch_size
     model_path = args.model_path
     image_size = (224, 224)
@@ -68,8 +67,8 @@ def main():
 
     trainset = Data_Loader(root=input_path, train=True, dataset='Food-101', transform=transform_train)
     testset = Data_Loader(root=input_path, train=False, dataset='Food-101', transform=transform_test)
-    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=16)
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=16)
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=8)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8)
     print('Trainset: {}'.format(len(trainloader.dataset)))
     print('Testset: {}'.format(len(testloader.dataset)))
 
