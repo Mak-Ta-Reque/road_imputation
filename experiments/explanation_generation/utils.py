@@ -331,7 +331,7 @@ def IG_SG(model, sample, target, nt_type='smoothgrad'):
 	ig = IntegratedGradients(model)
 	nt = NoiseTunnel(ig)
 	attr_ig_nt = attribute_image_features(model, nt, sample, target, baselines=sample * 0, nt_type=nt_type,
-									  nt_samples=10, stdevs=0.2)
+									  nt_samples=5, stdevs=0.2, internal_batch_size=5)
 	attribution = np.transpose(attr_ig_nt.squeeze(0).cpu().detach().numpy(), (1, 2, 0))
 	return attribution
 
