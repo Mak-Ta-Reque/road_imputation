@@ -1,0 +1,8 @@
+{"basemethod": "ig",
+ "modifiers": ["base", "sg", "sq", "var"],
+ "imputation": "linear",
+ "morf": false,
+ "datafile": "/workspaces/outputs/road/sota/results/retrain.json",
+ "percentages": [0.1, 0.3, 0.4, 0.5],
+ "timeoutdays": 0
+}

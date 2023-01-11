@@ -1,0 +1,28 @@
+morf threshold linear gb all version: Done
+morf threshold linear ig all version: Done
+morf threshold telea gb all version: Done
+morf threshold telea ig all version: Done
+morf threshold ns gb all version: Done
+morf threshold ns ig all version: Done
+
+lerf threshold linear gb all version: Done
+lerf threshold linear ig all version: Done
+lerf threshold telea gb all version: Done
+lerf threshold telea ig all version: Done
+lerf threshold ns gb all version: Done
+lerf threshold ns ig all version: Done
+
+
+morf sort linear gb all version: Done
+morf sort linear ig all version: Done
+morf sort telea gb all version: Done
+morf sort telea ig all version: Done
+morf sort ns gb all version: Done
+morf sort ns ig all version: Done
+
+lerf sort linear gb all version: Done
+lerf sort linear ig all version: Done
+lerf sort telea gb all version: Done
+lerf sort telea ig all version: Done
+lerf sort ns gb all version: Done
+lerf sort ns ig all version: Process
