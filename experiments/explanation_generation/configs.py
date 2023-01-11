@@ -11,7 +11,7 @@ def arg_parse():
     parser.add_argument("--batch_size", type=int,
                         help="batch size")
     parser.add_argument("--expl_method", type=str, 
-                        help="explanation method: ig, gb, ig_sg, gb_sg, ig_sq, gb_sq, ig_var, gb_var")
+                        help="explanation method: ig, gb, ig_sg, gb_sg, ig_sq, gb_sq, ig_var, gb_var, gradcam")
     parser.add_argument("--input_path", type=str,
                         help="dataset input path")
     parser.add_argument("--save_path", type=str,
