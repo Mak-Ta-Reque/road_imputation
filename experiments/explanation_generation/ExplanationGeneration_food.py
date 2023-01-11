@@ -57,7 +57,7 @@ def main():
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_of_classes)
     model = model.to(device)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path)["model_state"])
 
     transform_train = transforms.Compose([transforms.Resize((224, 224)), # transforms.RandomHorizontalFlip(),
                                     transforms.ToTensor(),
