@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         
 
         {
@@ -22,7 +23,7 @@
 		        "--input_path=/workspaces/data/food101/image/food-101",
 		        "--save_path=/workspaces/data/food101/image/food-101/expl/",
 		        "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
-		        "--batch_size=2",
+		        "--batch_size=3",
 		        "--expl_method=ig"
             ] 
         },
@@ -41,9 +42,10 @@
                 "--gpu=",
                 "--data_path=/workspaces/data/food101/image/food-101",
                 "--expl_path=/workspaces/data/food101/image/food-101/expl",
-                "--params_file=experiments/food101/noretrain_params.json",
+                "--params_file=experiments/food101/noretrain_params_gpu.json",
                 "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
-                "--dataset=food101"
+                "--dataset=food101",
+                "--batch_size=6"
             ]
         },
        
