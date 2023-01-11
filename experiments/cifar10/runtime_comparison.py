@@ -21,7 +21,7 @@ expl_path_test = "/workspaces/data/cifar10/explanation/ig/base_test.pkl"
 expl_path_train = "/workspaces/data/cifar10/explanation/ig/base_train.pkl"
 
 percentages = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9]
-ranking = "threshold"
+ranking = "sort"
 
 def get_imputer(imputation, retrain):
     """ Return the imputer object. """
