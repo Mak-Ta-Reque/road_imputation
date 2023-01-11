@@ -2,7 +2,6 @@
 # Call this script from the experiments/cifar10 folder as cwd.
 export PYTHONPATH=../../
 python NoRetrainingMethod.py \
-		--test=True \
 		--gpu=True \
 		--data_path='/mnt/XMG4THD/abka03_data/food-101/images/food-101' \
 		--expl_path='/mnt/XMG4THD/abka03_data/food-101/images/expl'\

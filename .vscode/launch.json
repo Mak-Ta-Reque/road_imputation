@@ -4,10 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
-    
-    
         
 
         {
@@ -42,10 +38,12 @@
                 "PYTHONPATH": "${workspaceFolder}"
             },
             "args": [
+                "--gpu=",
                 "--data_path=/workspaces/data/food101/image/food-101",
                 "--expl_path=/workspaces/data/food101/image/food-101/expl",
                 "--params_file=experiments/food101/noretrain_params.json",
-                "--model_path=/workspaces/data/food101/weight/resnet50model.pth"
+                "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
+                "--dataset=food101"
             ]
         },
        

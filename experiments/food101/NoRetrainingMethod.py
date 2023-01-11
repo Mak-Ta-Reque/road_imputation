@@ -1,7 +1,9 @@
+import sys
+
 from datetime import datetime
 import os, sys
 import torchvision
-from utils import Data_Loader,load_expl_dir_form, append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
+from utils import load_expl_dir_form, append_evaluation_result, get_missing_run_parameters, update_eval_result, load_expl, arg_parse
 import json
 import time
 from torchvision import models
@@ -10,6 +12,7 @@ import road
 from road import run_road
 from road.imputations import *
 from road.retraining import *
+from experiments.explanation_generation.utils import Data_Loader
 # different seeds
 seeds = [2005, 42, 1515, 3333, 420]
 
@@ -37,7 +40,7 @@ if __name__ == '__main__':
 
     # Apply this transformation after imputation.
     normalize_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    transform_tensor = transforms.Compose([transforms.ToTensor()])
+    transform_tensor = transforms.Compose([transforms.Resize(image_size), transforms.ToTensor()])
     
     params = json.load(open(params_file))
     print("Device: ", use_device)
@@ -76,46 +79,50 @@ if __name__ == '__main__':
     
     run_params = get_missing_run_parameters(storage_file, imputation, morf, group, modifiers, ps, timeout=int(params["timeoutdays"]))
     print("Got Run Parameters (mod, perc, run_id): ", run_params)
+ 
+
+    model = None
+    dataset_test = None
+    expl_test = None
+    if dataset=="cifer10":
+            num_of_classes = 10
+            model = models.resnet18()
+            num_ftrs = model.fc.in_features
+            model.fc = nn.Linear(num_ftrs, num_of_classes)
+            # load trained classifier
+            model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            dataset_test= torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform_tensor)
+            # to do enble cifer 10
+           
+    
+    elif dataset == "food101":
+            num_of_classes = 101
+            model = models.resnet50()
+            num_ftrs = model.fc.in_features
+            model.fc = nn.Linear(num_ftrs, num_of_classes)
+            model.load_state_dict(torch.load(model_path, map_location=torch.device(use_device))["model_state"])
+            dataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_tensor)
+            # list all the files from input dir
+            
+
     while run_params is not None:
         modifier = run_params[0]
         perc_value = run_params[1]
         run_id = run_params[2]
         torch.manual_seed(seeds[run_id]) # set appropriate seed 
+        
+        if dataset=="cifer10":
+            expl_train = f"{expl_path}/{group}/{modifier}_train.pkl"
+            expl_test = f"{expl_path}/{group}/{modifier}_test.pkl"
+            _, expl_test, _, pred_test = load_expl(None, expl_test)
 
+        
+        elif dataset == "food101":
+            expl_train = f"{expl_path}/{group}_{modifier}"
+            expl_test = f"{expl_path}/{group}_{modifier}"
+            expl_test, pred_test = load_expl_dir_form(expl_test, train=False) # return a indexing object like list
 
-    if dataset=="cifer10":
-        num_of_classes = 10
-        model = models.resnet18()
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, num_of_classes)
         # load trained classifier
-        model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-        dataset_test= torchvision.datasets.CIFAR10(root=data_path, train=False, download=True, transform=transform_tensor)
-        # to do enble cifer 10
-        expl_train = f"{expl_path}/{group}/{modifier}_train.pkl"
-        expl_test = f"{expl_path}/{group}/{modifier}_test.pkl"
-        _, expl_test, _, pred_test = load_expl(None, expl_test)
-
-       
-    elif dataset == "food101":
-        num_of_classes = 101
-        model = models.resnet50()
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, num_of_classes)
-        model.load_state_dict(torch.load(model_path, map_location=torch.device(use_device))["model_state"])
-        dataset_test = Data_Loader(root=data_path, train=False, dataset='Food-101', transform=transform_test)
-        # list all the files from input dir
-        
-        # to do enble cifer 10
-        expl_train = f"{expl_path}/{group}_{modifier}"
-        expl_test = f"{expl_path}/{group}_{modifier}"
-        expl_test, pred_test = load_expl_dir_form(expl_test, train=False) # return a indexing object like list
-
-    # load trained classifier
-    
-
-
-        
 
         start_time = time.time()
         ## load cifar 10 dataset in tensors
@@ -135,6 +142,6 @@ if __name__ == '__main__':
         update_eval_result(res_acc[0].item(), storage_file, imputation, group, modifier, morf, perc_value, run_id)
         run_params = get_missing_run_parameters(storage_file, imputation, morf, group, modifiers, ps)
         print("Got Run Parameters (mod, perc, run_id): ", run_params)
-        # exit()
+            # exit()
 
     print("No more open runs. Terminiating.")
