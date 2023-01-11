@@ -7,4 +7,4 @@ python NoRetrainingMethod.py \
 		--expl_path='/mnt/XMG4THD/abka03_data/food-101/images/expl'\
 		--params_file='noretrain_params_gpu.json' \
 		--model_path='/mnt/XMG4THD/abka03_data/food-101/weight/resnet50model.pth'\
-		--batch_size=10
+		--batch_size=1
