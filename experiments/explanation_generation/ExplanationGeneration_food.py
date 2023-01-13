@@ -57,7 +57,7 @@ def main():
     model.fc = nn.Linear(num_ftrs, num_of_classes)
     model = model.to(device)
     model.load_state_dict(torch.load(model_path, map_location=device )["model_state"])
-    model = model.type(torch.HalfTensor)
+    model = model.type(torch.half)
     transform_train = transforms.Compose([transforms.Resize(image_size), # transforms.RandomHorizontalFlip(),
                                     transforms.ToTensor(),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
