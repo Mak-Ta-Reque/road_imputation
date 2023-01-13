@@ -107,14 +107,15 @@ def main():
             ### save expl and predictions
             np.save(os.path.join(save_expl_path, 'explanation', 'train', '%s.npy' % str(i_num)), expl)
             np.save(os.path.join(save_expl_path, 'prediction', 'train', '%s.npy' % str(i_num)), predicted.data[0].cpu().numpy())
-            import gc
-            del variables
-            gc.collect()
+            
         end = time.time() - start
         print('Explanation for Trainset complete in {:.0f}m {:.0f}s'.format(end // 60, end % 60))
     else:
         start = time.time()
         for i_num in tqdm(range(len(testset))):
+            import gc
+            del variables
+            gc.collect()
             sample, clss = testset[i_num]
             sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
             outputs = model(sample)
