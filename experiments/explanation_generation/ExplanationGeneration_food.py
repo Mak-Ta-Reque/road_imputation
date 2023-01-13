@@ -115,7 +115,7 @@ def main():
         for i_num in tqdm(range(len(testset))):
             torch.cuda.empty_cache()
             sample, clss = testset[i_num]
-            sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
+            sample = sample.unsqueeze(0).to(dtype=torch.half).to(device)
             outputs = model(sample)
             _, predicted = torch.max(outputs.data, 1)
             expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)
