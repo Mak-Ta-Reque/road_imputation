@@ -57,7 +57,6 @@ def main():
     model.fc = nn.Linear(num_ftrs, num_of_classes)
     model = model.to(device)
     model.load_state_dict(torch.load(model_path, map_location=device )["model_state"])
-    model = model.type(torch.half)
     transform_train = transforms.Compose([transforms.Resize(image_size), # transforms.RandomHorizontalFlip(),
                                     transforms.ToTensor(),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -115,7 +114,7 @@ def main():
         for i_num in tqdm(range(len(testset))):
             torch.cuda.empty_cache()
             sample, clss = testset[i_num]
-            sample = sample.unsqueeze(0).to(dtype=torch.half).to(device)
+            sample = sample.unsqueeze(0).to(device) #.to(dtype=torch.half).to(device)
             outputs = model(sample)
             _, predicted = torch.max(outputs.data, 1)
             expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)
