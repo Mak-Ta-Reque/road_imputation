@@ -113,9 +113,7 @@ def main():
     else:
         start = time.time()
         for i_num in tqdm(range(len(testset))):
-            import gc
-            del variables
-            gc.collect()
+            torch.cuda.empty_cache()
             sample, clss = testset[i_num]
             sample = sample.unsqueeze(0).to(device) # .to(dtype=torch.half).to(device)
             outputs = model(sample)
