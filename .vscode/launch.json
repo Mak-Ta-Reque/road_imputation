@@ -13,18 +13,16 @@
             "name": "Generate Explantion food",
             "type": "python",
             "request": "launch",
-            "program": "/workspaces/road_impainting/experiments/explanation_generation/ExplanationGeneration_food.py",
+            "python": "/mnt/abka03/.conda/road/bin/python",
+            "program": "experiments/explanation_generation/ExplanationGeneration_food.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "env": {
-                "PYTHONPATH": "/workspaces/road_impainting/experiments/explanation_generation/"
-            },
             "args": [
                 "--test=True",
 		        "--gpu=",
-		        "--input_path=/workspaces/data/food101/image/food-101",
-		        "--save_path=/workspaces/data/food101/image/food-101/expl/",
-		        "--model_path=/workspaces/data/food101/weight/resnet50model.pth",
+		        "--input_path=/mnt/abka03/road_data/food101/image/food-101",
+		        "--save_path=/mnt/abka03/road_data/food101/image/food-101/expl/",
+		        "--model_path=/mnt/abka03/road_data/food101/weight/resnet50model.pth",
 		        "--batch_size=1",
 		        "--expl_method=ig_sg"
             ] 
@@ -34,6 +32,7 @@
             "name": "ROAD No Retain (food)",
             "type": "python",
             "request": "launch",
+            "python": "/mnt/abka03/.conda/road/bin/python",
             "program": "experiments/food101/NoRetrainingMethod.py",
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -55,6 +54,7 @@
             "name": "ROAD No Retain",
             "type": "python",
             "request": "launch",
+            "python": "/mnt/abka03/.conda/road/bin/python",
             "program": "experiments/cifar10/NoRetrainingMethod.py",
             "console": "integratedTerminal",
             "justMyCode": true,
@@ -64,7 +64,7 @@
             "args": [
                 "--data_path=/workspaces/data/cifar10/explanation",
                 "--expl_path=/workspaces/data/cifar10/explanation",
-                "--params_file=experiments/cifar10/noretrain_params.json",
+                "--params_file=/mnt/abka03/road_data/cifar10/noretrain_params.json",
                 "--model_path=data/cifar_8014.pth"
             ]
         },
@@ -73,6 +73,7 @@
             "name": "ROAD Retain",
             "type": "python",
             "request": "launch",
+            "python": "/mnt/abka03/.conda/road/bin/python",
             "program": "experiments/cifar10/RetrainingMethod.py",
             "console": "integratedTerminal",
             "justMyCode": true,

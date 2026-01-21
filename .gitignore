@@ -1,2 +1,31 @@
-expieriments/explanation_generation/data
-/experiments/explanation_generation/data/
+data/cifar-10-python.tar.gz
+# Ignore __pycache__ in road directory
+road/__pycache__/
+# Ignore Python compiled files
+*.pyc
+# Ignore Python bytecode cache
+__pycache__/
+*/__pycache__/
+
+# Ignore all large data, output, and model files
+data/
+output/
+model_cache/
+
+# Ignore experiment outputs in subfolders
+experiments/**/output/
+experiments/**/result/
+experiments/**/sort_time/
+experiments/**/threshold_time/
+experiments/**/model_cache/
+
+# Ignore common large file types
+*.pth
+*.pt
+*.npz
+*.h5
+
+# (Optional) Ignore checkpoints and logs
+checkpoints/
+*.log
+data

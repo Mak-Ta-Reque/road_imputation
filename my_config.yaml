@@ -1,0 +1,115 @@
+# Default Configuration for ROAD Benchmark Pipeline
+# Usage: python experiments/unified/run_pipeline.py --config_file my_config.yaml
+
+# ==========================================
+# Dataset Configuration
+# ==========================================
+# Options: cifar10, cifar100, food101, imagenet
+dataset: imagenet
+
+# Path to the directory containing the dataset
+data_path: /mnt/abka03/raw_data_download
+
+
+
+# ==========================================
+# Model & Training Configuration
+# ==========================================
+# Path to pretrained model weights (optional)
+#model_path: 
+# Model architecture name (e.g., resnet50, resnet56)
+model_name: resnet50
+# Directory to cache downloaded/fine-tuned models
+# cache_dir: ./model_cache
+# Training parameters (for fine-tuning)
+epochs: 10
+batch_size: 32
+lr: 0.001
+
+# Force retraining even if a model exists
+force_retrain: false
+
+# Minimum accuracy required to proceed with benchmarking (percentage)
+min_accuracy: 50.0
+
+# Skip the pre-flight accuracy check (not recommended)
+skip_accuracy_check: false
+
+# ==========================================
+# Explanation Configuration
+# ==========================================
+# Methods to evaluate
+# Common: ig, gb, ig_sg, gb_sg, ig_sq, gb_sq, ig_var, gb_var
+explanation_methods: 
+  - ig
+  - gb
+  - ig_sg
+  - gb_sg
+
+# Path to precomputed explanations (optional)
+# expl_path: ./explanations/precomputed.pkl
+
+# Force regeneration of explanations
+force_explain: false
+
+# ==========================================
+# Benchmark Parameters
+# ==========================================
+# Imputation methods
+# Options: linear, fixed, telea, ns, zero, gain
+imputations:
+  - linear
+  - fixed
+  - telea
+  - ns
+
+# Ranking methods
+# Options: sort, threshold
+rankings:
+  - sort
+
+# Removal orders
+# Options: morf (Most Relevant First), lerf (Least Relevant First)
+orders:
+  - morf
+  - lerf
+
+# Percentages of pixels to remove
+percentages:
+  - 0.0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+
+# Number of samples to use for testing (set to null for all)
+test_subset_size: null
+
+# ==========================================
+# Pipeline Control
+# ==========================================
+# Stages to run
+# Options: train, explain, benchmark, analyze (or 'all' for all stages)
+stages:
+  - all
+
+# Output directory for results, tables, and figures
+output_dir: ./output
+
+# ==========================================
+# Visualization & Analysis
+# ==========================================
+# Format for generated figures
+# Options: png, pdf, svg
+figure_format: png
+
+# Generate visual examples of imputations
+visualize_imputations: false
+
+# Number of samples to visualize
+viz_samples: 3

@@ -49,15 +49,29 @@ def main():
     if not os.path.isdir(os.path.join(save_expl_path, 'prediction', 'test')):
         os.makedirs(os.path.join(save_expl_path, 'prediction', 'test'))
 
-    # Food101
-    model = models.resnet50(pretrained=True)
+    # Food101 - Try loading from torch hub first, fallback to local model
     num_of_classes = 101
-
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, num_of_classes)
-    model = model.to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device )["model_state"])
-    model = model.type(torch.half)
+    try:
+        # Try to load Food-101 model from torch hub if available
+        model = torch.hub.load('pytorch/vision', 'resnet50', weights='IMAGENET1K_V1')
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, num_of_classes)
+        model = model.to(device)
+        
+        # Check if model_path exists and load custom weights
+        if model_path and os.path.exists(model_path):
+            model.load_state_dict(torch.load(model_path, map_location=device)["model_state"])
+            print(f"Loaded Food-101 model weights from: {model_path}")
+        else:
+            print("Using pretrained ImageNet weights (no custom Food-101 weights found)")
+    except Exception as e:
+        print(f"Failed to load from torch hub: {e}")
+        print("Falling back to torchvision models...")
+        model = models.resnet50(pretrained=True)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, num_of_classes)
+        model = model.to(device)
+        model.load_state_dict(torch.load(model_path, map_location=device)["model_state"])
     transform_train = transforms.Compose([transforms.Resize(image_size), # transforms.RandomHorizontalFlip(),
                                     transforms.ToTensor(),
                                     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -115,7 +129,7 @@ def main():
         for i_num in tqdm(range(len(testset))):
             torch.cuda.empty_cache()
             sample, clss = testset[i_num]
-            sample = sample.unsqueeze(0).to(dtype=torch.half).to(device)
+            sample = sample.unsqueeze(0).to(device) #.to(dtype=torch.half).to(device)
             outputs = model(sample)
             _, predicted = torch.max(outputs.data, 1)
             expl = get_expl(model, sample, clss)  # half precision torch.convert(dtype=float16)

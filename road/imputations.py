@@ -5,7 +5,9 @@ from scipy.sparse import lil_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve
 from road.gisp.models.gsmv import GNet_ResNet
 import cv2
-  
+
+# Inpainting radius constant (change here to control smoothing globally)
+INPAINT_RADIUS = 0.15
 class BaseImputer():
     def __call__(self, img: torch.Tensor, mask: torch.Tensor)-> torch.Tensor:
         """ Call the Imputation function to fill the masked pixels in an image.
@@ -62,7 +64,7 @@ class ImpaintingImputation(BaseImputer):
 
         mask = np.array(mask, dtype=np.uint8)
         
-        dst = cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA)
+        dst = cv2.inpaint(img, mask, INPAINT_RADIUS, cv2.INPAINT_TELEA)
 
         dst = dst[...,::-1].copy()
         
@@ -84,7 +86,7 @@ class ImpaintingImputation(BaseImputer):
             #print(im.shape)
             mask = 1 - mask.numpy()
             mask = np.array(mask, dtype=np.uint8)
-            ds = cv2.inpaint(im, msk, 3, cv2.cv.INPAINT_TELEA)
+            ds = cv2.inpaint(im, msk, INPAINT_RADIUS, cv2.cv.INPAINT_TELEA)
             ds = ds [...,::-1].copy()
             ds = np.moveaxis(ds, -1, 0)
             ds = torch.from_numpy(ds)
@@ -102,7 +104,7 @@ class ImpaintingImputationNS(BaseImputer):
         mask = 1 - mask.numpy()
         mask = np.array(mask, dtype=np.uint8)
         
-        dst = cv2.inpaint(img, mask, 3, cv2.INPAINT_NS)
+        dst = cv2.inpaint(img, mask, INPAINT_RADIUS, cv2.INPAINT_NS)
 
         dst = dst[...,::-1].copy()
         
@@ -123,7 +125,7 @@ class ImpaintingImputationNS(BaseImputer):
             #print(im.shape)
             mask = 1 - mask.numpy()
             mask = np.array(mask, dtype=np.uint8)
-            ds = cv2.inpaint(im, msk, 3, cv2.cv.INPAINT_NS)
+            ds = cv2.inpaint(im, msk, 1, cv2.cv.INPAINT_NS)
             ds = ds [...,::-1].copy()
             ds = np.moveaxis(ds, -1, 0)
             ds = torch.from_numpy(ds)
