@@ -8,7 +8,7 @@
 dataset: imagenet
 
 # Path to the directory containing the dataset
-data_path: /mnt/abka03/raw_data_download
+data_path: /mnt/abka03/raw_data_download/imagenet
 
 
 

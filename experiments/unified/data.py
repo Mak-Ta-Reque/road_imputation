@@ -74,8 +74,8 @@ class ImageNetDataset(Dataset):
     def __init__(self, root: str, train: bool = True, transform=None):
         super().__init__()
         split = 'train' if train else 'val'
-        self.dataset = datasets.ImageFolder(
-            os.path.join(root, split), 
+        self.dataset = datasets.ImageNet(
+            root, split=split, 
             transform=transform
         )
     
